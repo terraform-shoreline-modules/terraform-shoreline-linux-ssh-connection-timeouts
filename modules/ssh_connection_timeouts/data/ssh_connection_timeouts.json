@@ -1,0 +1,150 @@
+{
+  "name": "ssh_connection_timeouts",
+  "description": "SSH connection timeouts refer to a situation where a user is unable to establish a connection to a remote server or network device using the Secure Shell (SSH) protocol. This can occur due to a variety of reasons such as network connectivity issues, server overload, firewall restrictions, or misconfigured SSH settings. When this happens, users are unable to access the remote resources they need, which can lead to disruptions in business operations and productivity.",
+  "params": [
+    {
+      "name": "SERVER_IP_ADDRESS_OR_HOSTNAME",
+      "value": ""
+    },
+    {
+      "name": "REMOTE_SERVER",
+      "value": ""
+    },
+    {
+      "name": "SERVER_IP",
+      "value": ""
+    },
+    {
+      "name": "SSH_PORT_NUMBER",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## SSH Connection Timeouts.\nSSH connection timeouts refer to a situation where a user is unable to establish a connection to a remote server or network device using the Secure Shell (SSH) protocol. This can occur due to a variety of reasons such as network connectivity issues, server overload, firewall restrictions, or misconfigured SSH settings. When this happens, users are unable to access the remote resources they need, which can lead to disruptions in business operations and productivity."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check network connectivity to the remote server"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `ping ${REMOTE_SERVER}`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if the remote server is reachable via SSH"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `ssh -v ${REMOTE_SERVER}`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if the remote server is listening on the SSH port"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `nc -zv ${REMOTE_SERVER} 22`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if the SSH service is running on the remote server"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `systemctl status sshd`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the SSH logs on the remote server for any errors"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `journalctl -u sshd | tail`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if there are any firewall rules blocking SSH traffic"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `iptables -L -n | grep 22`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the SSH configuration file for any errors"
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `sshd -T | less`"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Verify that the server is up and running and that the SSH service is running. Restart the SSH service if necessary."
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_server_check_ssh_service($SERVER_IP)"
+    },
+    {
+      "name": "cell_18",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the firewall settings on the server and ensure that SSH traffic is allowed."
+    },
+    {
+      "name": "cell_19",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_firewall_setup($SERVER_IP_ADDRESS_OR_HOSTNAME, $SSH_PORT_NUMBER)"
+    }
+  ]
+}
